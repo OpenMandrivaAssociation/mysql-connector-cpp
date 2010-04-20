@@ -5,7 +5,7 @@
 Summary:	A MySQL database connector for C++
 Name:		mysql-connector-c++
 Version:	1.0.5
-Release:	%mkrel 1
+Release:	%mkrel 6
 Group:		System/Libraries
 License:	GPL
 URL:		http://dev.mysql.com/downloads/connector/cpp/
@@ -46,32 +46,20 @@ This package is only needed if you plan to develop or compile applications
 which requires the mysql-connector-cpp library.
 
 %prep
-
 %setup -q -n mysql-connector-c++-%{version}
-%patch0 -p1
+%patch0 -p1 -b .build
 %patch1 -p0
 %patch2 -p0
 
 %build
 %serverbuild
-cmake . \
-    -DCMAKE_INSTALL_PREFIX=%{_prefix} \
-    -DCMAKE_INSTALL_LIB_DIR=%{_libdir} \
-    -DINCLUDE_INSTALL_DIR=%{_includedir} \
-    -DLIB_INSTALL_DIR=%{_libdir} \
-    -DSYSCONF_INSTALL_DIR=%{_sysconfdir} \
-    -DSHARE_INSTALL_PREFIX=%{_datadir} \
-%if "%{_lib}" == "lib64"
-    -DLIB_SUFFIX=64 \
-%endif
-    -DCMAKE_MODULE_LINKER_FLAGS="-Wl,--as-needed -Wl,-z,relro"
-
-%make LIBDIR=%{_libdir}
+%cmake
+%make
 
 %install
 rm -rf %{buildroot}
 
-%makeinstall_std
+%makeinstall_std -C build
 
 # cleanup
 rm -f %{buildroot}%{_libdir}/*.a
