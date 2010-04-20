@@ -53,7 +53,7 @@ which requires the mysql-connector-cpp library.
 
 %build
 %serverbuild
-%cmake
+%cmake -DCMAKE_INSTALL_LIB_DIR=%{_libdir}
 %make
 
 %install
