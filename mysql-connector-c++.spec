@@ -5,7 +5,7 @@
 Summary:	A MySQL database connector for C++
 Name:		mysql-connector-c++
 Version:	1.0.5
-Release:	%mkrel 6
+Release:	%mkrel 7
 Group:		System/Libraries
 License:	GPL
 URL:		http://dev.mysql.com/downloads/connector/cpp/
