@@ -4,12 +4,13 @@
 
 Summary:	A MySQL database connector for C++
 Name:		mysql-connector-c++
-Version:	1.0.5
-Release:	%mkrel 7
+Version:	1.1.0
+Release:	%mkrel 1
 Group:		System/Libraries
 License:	GPL
 URL:		http://dev.mysql.com/downloads/connector/cpp/
 Source0:	http://mirrors.dotsrc.org/mysql/Downloads/Connector-C++/mysql-connector-c++-%{version}.tar.gz
+Source1:	http://mirrors.dotsrc.org/mysql/Downloads/Connector-C++/mysql-connector-c++-%{version}.tar.gz.asc
 Patch0:		mysql-connector-cpp-1.0.4-beta-cmake-paths-fix.patch
 Patch1:		mysql-connector-cpp-1.0.5-gcc44.patch
 Patch2:		mysql-connector-c++-1.0.5-no_examples.diff
@@ -48,7 +49,7 @@ which requires the mysql-connector-cpp library.
 %prep
 %setup -q -n mysql-connector-c++-%{version}
 %patch0 -p1 -b .build
-%patch1 -p0
+%patch1 -p1
 %patch2 -p0
 
 %build
