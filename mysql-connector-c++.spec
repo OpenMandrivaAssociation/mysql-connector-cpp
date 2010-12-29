@@ -16,6 +16,7 @@ Patch1:		mysql-connector-cpp-1.0.5-gcc44.patch
 Patch2:		mysql-connector-c++-1.0.5-no_examples.diff
 BuildRequires:	cmake
 BuildRequires:	mysql-devel
+BuildRequires:	boost-devel
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
