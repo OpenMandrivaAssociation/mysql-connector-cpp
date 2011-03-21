@@ -1,4 +1,4 @@
-%define	major 1
+%define	major 5
 %define libname %mklibname mysqlcppconn %{major}
 %define develname %mklibname mysqlcppconn -d
 
@@ -14,6 +14,7 @@ Source1:	http://mirrors.dotsrc.org/mysql/Downloads/Connector-C++/mysql-connector
 Patch0:		mysql-connector-cpp-1.0.4-beta-cmake-paths-fix.patch
 Patch1:		mysql-connector-cpp-1.0.5-gcc44.patch
 Patch2:		mysql-connector-c++-1.0.5-no_examples.diff
+Patch3:		mysql-connector-c++-1.1.0.bzr895.diff
 BuildRequires:	cmake
 BuildRequires:	mysql-devel
 BuildRequires:	boost-devel
@@ -52,16 +53,31 @@ which requires the mysql-connector-cpp library.
 %patch0 -p1 -b .build
 %patch1 -p1
 %patch2 -p0
+%patch3 -p1
+
+%{__sed} -i -e 's/lib$/%{_lib}/' driver/CMakeLists.txt
+%{__chmod} -x examples/*.cpp examples/*.txt
+
+# fix dynload
+find -name "*.cpp" | xargs perl -pi -e "s|libmysqlclient_r\.so|libmysqlclient\.so\.18|g"
 
 %build
 %serverbuild
-%cmake -DCMAKE_INSTALL_LIB_DIR=%{_libdir}
+cmake \
+    -DCMAKE_INSTALL_PREFIX:PATH=%{_prefix} \
+    -DCMAKE_INSTALL_LIBDIR:PATH=%{_libdir} \
+    -DCMAKE_INSTALL_LIB_DIR:PATH=%{_libdir} \
+    -DLIB_INSTALL_DIR:PATH=%{_libdir} \
+    -DMYSQL_CONFIG_EXECUTABLE=%{_bindir}/mysql_config \
+    -DMYSQLCPPCONN_DYNLOAD_MYSQL_LIB=%{_libdir}/libmysqlclient.so.18 \
+    .
+
 %make
 
 %install
 rm -rf %{buildroot}
 
-%makeinstall_std -C build
+%makeinstall_std
 
 # cleanup
 rm -f %{buildroot}%{_libdir}/*.a
