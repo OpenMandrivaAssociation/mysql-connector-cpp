@@ -1,0 +1,22 @@
+--- cppconn/CMakeLists.txt.include	2011-08-15 13:03:27.000000000 +0200
++++ cppconn/CMakeLists.txt	2011-08-15 13:03:43.000000000 +0200
+@@ -50,7 +50,7 @@
+ CHECK_FUNCTION_EXISTS(strtoumax HAVE_FUNCTION_STRTOUMAX)
+ 
+ 
+-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cm ${CMAKE_CURRENT_BINARY_DIR}/config.h)
++CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cm ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
+ 
+ 
+ SET(MYSQLCPPCONN_INSTALL_HEADERS
+--- driver/CMakeLists.txt.include	2011-08-15 13:03:59.000000000 +0200
++++ driver/CMakeLists.txt	2011-08-15 13:04:12.000000000 +0200
+@@ -97,7 +97,7 @@
+ 
+ ENDIF(MYSQLCPPCONN_DT_RPATH)
+ 
+-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/nativeapi/binding_config.h.cm ${CMAKE_CURRENT_BINARY_DIR}/nativeapi/binding_config.h)
++CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/nativeapi/binding_config.h.cm ${CMAKE_CURRENT_SOURCE_DIR}/nativeapi/binding_config.h)
+ 
+ SET(MYSQLCPPCONN_SOURCES
+ 	mysql_art_resultset.cpp
