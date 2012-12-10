@@ -15,7 +15,6 @@ Patch0:		mysql-connector-cpp-1.0.4-beta-cmake-paths-fix.patch
 Patch1:		mysql-connector-cpp-1.0.5-gcc44.patch
 Patch2:		mysql-connector-c++-1.0.5-no_examples.diff
 Patch3:		mysql-connector-c++-1.1.0.bzr895.diff
-Patch4:		mysql-connector-c++-1.1.0-includedir.patch
 BuildRequires:	cmake
 BuildRequires:	mysql-devel
 BuildRequires:	boost-devel
@@ -55,7 +54,6 @@ which requires the mysql-connector-cpp library.
 %patch1 -p1
 %patch2 -p0
 %patch3 -p1
-%patch4 -p0
 
 %{__sed} -i -e 's/lib$/%{_lib}/' driver/CMakeLists.txt
 %{__chmod} -x examples/*.cpp examples/*.txt
@@ -65,16 +63,21 @@ find -name "*.cpp" | xargs perl -pi -e "s|libmysqlclient_r\.so|libmysqlclient\.s
 
 %build
 %serverbuild
-%cmake \
+cmake \
+    -DCMAKE_INSTALL_PREFIX:PATH=%{_prefix} \
+    -DCMAKE_INSTALL_LIBDIR:PATH=%{_libdir} \
+    -DCMAKE_INSTALL_LIB_DIR:PATH=%{_libdir} \
+    -DLIB_INSTALL_DIR:PATH=%{_libdir} \
     -DMYSQL_CONFIG_EXECUTABLE=%{_bindir}/mysql_config \
-    -DMYSQLCPPCONN_DYNLOAD_MYSQL_LIB=%{_libdir}/`objdump -x %{_libdir}/libmysqlclient.so|grep SONAME|awk -F' ' '{print $2}'`
+    -DMYSQLCPPCONN_DYNLOAD_MYSQL_LIB=%{_libdir}/libmysqlclient.so.18 \
+    .
 
 %make
 
 %install
 rm -rf %{buildroot}
 
-%makeinstall_std -C build
+%makeinstall_std
 
 # cleanup
 rm -f %{buildroot}%{_libdir}/*.a
@@ -104,3 +107,30 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_includedir}/mysql-connector/cppconn/*.h
 %attr(0644,root,root) %{_libdir}/*.so
 
+
+
+%changelog
+* Mon Mar 21 2011 Oden Eriksson <oeriksson@mandriva.com> 1.1.0-1mdv2011.0
++ Revision: 647352
+- sync slightly with fedora
+- make it build (friggin cmake!)
+- make it use the correct mysql lib all over the place
+- fix deps
+- 1.1.0
+
+* Mon Dec 06 2010 Oden Eriksson <oeriksson@mandriva.com> 1.0.5-7mdv2011.0
++ Revision: 612974
+- the mass rebuild of 2010.1 packages
+
+* Tue Apr 20 2010 Funda Wang <fwang@mandriva.org> 1.0.5-6mdv2010.1
++ Revision: 536927
+- specify libdir
+- use cmake standard macro
+
+* Thu Feb 18 2010 Oden Eriksson <oeriksson@mandriva.com> 1.0.5-1mdv2010.1
++ Revision: 507862
+- import mysql-connector-c++
+
+
+* Thu Feb 18 2010 Oden Eriksson <oeriksson@mandriva.com> 1.0.5-1mdv2010.0
+- initial Mandriva package (inspired by opensuse)
