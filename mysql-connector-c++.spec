@@ -1,10 +1,10 @@
-%define major 6
+%define major 7
 %define libname %mklibname mysqlcppconn %{major}
 %define devname %mklibname mysqlcppconn -d
 
 Summary:	A MySQL database connector for C++
 Name:		mysql-connector-c++
-Version:	1.1.1
+Version:	1.1.3
 Release:	1
 Group:		System/Libraries
 License:	GPLv2
@@ -70,9 +70,6 @@ rm -fr %{buildroot}%{_libdir}/*.a
 
 %files -n %{devname}
 %doc README CHANGES COPYING ANNOUNCEMENT Licenses_for_Third-Party_Components.txt
-%dir %{_includedir}/cppconn
 %{_includedir}/*.h
-%{_includedir}/cppconn/*.h
+%{_includedir}/cppconn
 %{_libdir}/*.so
-
-
