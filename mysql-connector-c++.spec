@@ -4,12 +4,13 @@
 
 Summary:	A MySQL database connector for C++
 Name:		mysql-connector-c++
-Version:	1.1.3
-Release:	11
+Version:	1.1.6
+Release:	1
 Group:		System/Libraries
 License:	GPLv2
 Url:		http://dev.mysql.com/downloads/connector/cpp/
 Source0:	http://cdn.mysql.com/Downloads/Connector-C++/%{name}-%{version}.tar.gz
+Patch1:		mariadb_api.patch
 BuildRequires:	cmake
 BuildRequires:	mariadb-devel mariadb-common
 BuildRequires:	boost-devel
@@ -49,6 +50,8 @@ chmod  -x examples/*.cpp examples/*.txt
 # Save examples to keep directory clean (for doc)
 mkdir _doc_examples
 cp -pr examples _doc_examples
+
+%apply_patches
 
 %build
 %cmake -DMYSQLCPPCONN_BUILD_EXAMPLES:BOOL=OFF
