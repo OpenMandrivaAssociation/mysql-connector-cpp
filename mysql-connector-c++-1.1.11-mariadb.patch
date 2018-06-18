@@ -1,0 +1,340 @@
+diff -up mysql-connector-c++-1.1.11/driver/mysql_connection.cpp.omv~ mysql-connector-c++-1.1.11/driver/mysql_connection.cpp
+--- mysql-connector-c++-1.1.11/driver/mysql_connection.cpp.omv~	2018-06-18 19:56:28.938113392 +0200
++++ mysql-connector-c++-1.1.11/driver/mysql_connection.cpp	2018-06-18 19:58:47.917105734 +0200
+@@ -240,15 +240,8 @@ static const String2IntMap booleanOption
+     {"OPT_CAN_HANDLE_EXPIRED_PASSWORDS", MYSQL_OPT_CAN_HANDLE_EXPIRED_PASSWORDS, true},
+     {"OPT_CONNECT_ATTR_RESET",      MYSQL_OPT_CONNECT_ATTR_RESET, true},
+     {"OPT_RECONNECT",               MYSQL_OPT_RECONNECT, true},
+-#if MYCPPCONN_STATIC_MYSQL_VERSION_ID < 80000
+     {"sslVerify",                   MYSQL_OPT_SSL_VERIFY_SERVER_CERT, false}, // Deprecated
+     {"sslEnforce",                  MYSQL_OPT_SSL_ENFORCE, false} // Deprecated
+-#else
+-    {"sslVerify",                   MYSQL_OPT_SSL_MODE, true}, // Deprecated
+-    {"sslEnforce",                  MYSQL_OPT_SSL_MODE, true}, // Deprecated
+-    {"OPT_GET_SERVER_PUBLIC_KEY",   MYSQL_OPT_GET_SERVER_PUBLIC_KEY, false},
+-    {"OPT_OPTIONAL_RESULTSET_METADATA", MYSQL_OPT_OPTIONAL_RESULTSET_METADATA, false},
+-#endif
+ 
+   };
+ /* Array for mapping of integer connection options to mysql_options call */
+@@ -260,10 +253,6 @@ static const String2IntMap intOptions[]=
+     {"OPT_LOCAL_INFILE",        MYSQL_OPT_LOCAL_INFILE, false},
+     {"OPT_MAX_ALLOWED_PACKET",  MYSQL_OPT_MAX_ALLOWED_PACKET, false},
+     {"OPT_NET_BUFFER_LENGTH",   MYSQL_OPT_NET_BUFFER_LENGTH, false},
+-    {"OPT_SSL_MODE",            MYSQL_OPT_SSL_MODE    , false},
+-#if MYCPPCONN_STATIC_MYSQL_VERSION_ID >= 80000
+-    {"OPT_RETRY_COUNT",         MYSQL_OPT_RETRY_COUNT, false},
+-#endif
+   };
+ /* Array for mapping of string connection options to mysql_options call */
+ static const String2IntMap stringOptions[]=
+@@ -765,23 +754,6 @@ void MySQL_Connection::init(ConnectOptio
+     } else if (!it->first.compare("OPT_CONNECT_ATTR_RESET")) {
+       proxy->options(MYSQL_OPT_CONNECT_ATTR_RESET, 0);
+ 
+-#if MYCPPCONN_STATIC_MYSQL_VERSION_ID > 80000
+-
+-    } else if (!it->first.compare("sslVerify")) {
+-
+-      ssl_mode ssl_mode_val = (it->second).get< bool >() ? SSL_MODE_VERIFY_CA
+-                                           : SSL_MODE_PREFERRED;
+-      proxy->options(MYSQL_OPT_SSL_MODE, &ssl_mode_val);
+-
+-
+-    } else if (!it->first.compare("sslEnforce")) {
+-      ssl_mode ssl_mode_val = (it->second).get< bool >() ? SSL_MODE_REQUIRED
+-                                                         : SSL_MODE_PREFERRED;
+-      proxy->options(MYSQL_OPT_SSL_MODE, &ssl_mode_val);
+-
+-#endif
+-
+-
+     /* If you need to add new integer connection option that should result in
+        calling mysql_optiong - add its mapping to the intOptions array
+      */
+diff -up mysql-connector-c++-1.1.11/driver/mysql_connection_options.h.omv~ mysql-connector-c++-1.1.11/driver/mysql_connection_options.h
+--- mysql-connector-c++-1.1.11/driver/mysql_connection_options.h.omv~	2018-06-18 19:54:26.322120149 +0200
++++ mysql-connector-c++-1.1.11/driver/mysql_connection_options.h	2018-06-18 19:55:58.596115064 +0200
+@@ -39,32 +39,9 @@ namespace sql
+ namespace mysql
+ {
+ 
++/* Keep in sync with <mysql/server/mysql.h>'s enum mysql_option! */
+ enum MySQL_Connection_Options
+ {
+-#if MYCPPCONN_STATIC_MYSQL_VERSION_ID >= 80000
+-  MYSQL_OPT_CONNECT_TIMEOUT, MYSQL_OPT_COMPRESS, MYSQL_OPT_NAMED_PIPE,
+-  MYSQL_INIT_COMMAND, MYSQL_READ_DEFAULT_FILE, MYSQL_READ_DEFAULT_GROUP,
+-  MYSQL_SET_CHARSET_DIR, MYSQL_SET_CHARSET_NAME, MYSQL_OPT_LOCAL_INFILE,
+-  MYSQL_OPT_PROTOCOL, MYSQL_SHARED_MEMORY_BASE_NAME, MYSQL_OPT_READ_TIMEOUT,
+-  MYSQL_OPT_WRITE_TIMEOUT, MYSQL_OPT_USE_RESULT,
+-  MYSQL_REPORT_DATA_TRUNCATION, MYSQL_OPT_RECONNECT,
+-  MYSQL_PLUGIN_DIR, MYSQL_DEFAULT_AUTH,
+-  MYSQL_OPT_BIND,
+-  MYSQL_OPT_SSL_KEY, MYSQL_OPT_SSL_CERT,
+-  MYSQL_OPT_SSL_CA, MYSQL_OPT_SSL_CAPATH, MYSQL_OPT_SSL_CIPHER,
+-  MYSQL_OPT_SSL_CRL, MYSQL_OPT_SSL_CRLPATH,
+-  MYSQL_OPT_CONNECT_ATTR_RESET, MYSQL_OPT_CONNECT_ATTR_ADD,
+-  MYSQL_OPT_CONNECT_ATTR_DELETE,
+-  MYSQL_SERVER_PUBLIC_KEY,
+-  MYSQL_ENABLE_CLEARTEXT_PLUGIN,
+-  MYSQL_OPT_CAN_HANDLE_EXPIRED_PASSWORDS,
+-  MYSQL_OPT_MAX_ALLOWED_PACKET, MYSQL_OPT_NET_BUFFER_LENGTH,
+-  MYSQL_OPT_TLS_VERSION,
+-  MYSQL_OPT_SSL_MODE,
+-  MYSQL_OPT_RETRY_COUNT,
+-  MYSQL_OPT_GET_SERVER_PUBLIC_KEY,
+-  MYSQL_OPT_OPTIONAL_RESULTSET_METADATA
+-#else
+   MYSQL_OPT_CONNECT_TIMEOUT, MYSQL_OPT_COMPRESS, MYSQL_OPT_NAMED_PIPE,
+   MYSQL_INIT_COMMAND, MYSQL_READ_DEFAULT_FILE, MYSQL_READ_DEFAULT_GROUP,
+   MYSQL_SET_CHARSET_DIR, MYSQL_SET_CHARSET_NAME, MYSQL_OPT_LOCAL_INFILE,
+@@ -83,14 +60,11 @@ enum MySQL_Connection_Options
+   MYSQL_SERVER_PUBLIC_KEY,
+   MYSQL_ENABLE_CLEARTEXT_PLUGIN,
+   MYSQL_OPT_CAN_HANDLE_EXPIRED_PASSWORDS,
+-  MYSQL_OPT_SSL_ENFORCE,
+-#if MYCPPCONN_STATIC_MYSQL_VERSION_ID >= 50700
+-  MYSQL_OPT_MAX_ALLOWED_PACKET, MYSQL_OPT_NET_BUFFER_LENGTH,
+-  MYSQL_OPT_TLS_VERSION,
+-  MYSQL_OPT_SSL_MODE
+-#endif //MYCPPCONN_STATIC_MYSQL_VERSION_ID >= 50700
+-#endif //MYCPPCONN_STATIC_MYSQL_VERSION_ID >= 80000
+ 
++  /* MariaDB options */
++  MYSQL_PROGRESS_CALLBACK=5999,
++  MYSQL_OPT_NONBLOCK,
++  MYSQL_OPT_USE_THREAD_SPECIFIC_MEMORY
+ };
+ 
+ }
+diff -up mysql-connector-c++-1.1.11/driver/mysql_resultset_metadata.h.omv~ mysql-connector-c++-1.1.11/driver/mysql_resultset_metadata.h
+--- mysql-connector-c++-1.1.11/driver/mysql_resultset_metadata.h.omv~	2018-06-18 19:39:09.857170650 +0200
++++ mysql-connector-c++-1.1.11/driver/mysql_resultset_metadata.h	2018-06-18 19:39:18.524170172 +0200
+@@ -38,12 +38,7 @@
+ #include <cppconn/resultset_metadata.h>
+ #include <cppconn/version_info.h>
+ 
+-#if (MYCPPCONN_STATIC_MYSQL_VERSION_ID > 80004)
+-struct MYSQL_FIELD;
+-#else
+ struct st_mysql_field;
+-#define MYSQL_FIELD st_mysql_field
+-#endif
+ 
+ namespace sql
+ {
+@@ -120,7 +115,7 @@ protected:
+ 
+   void checkColumnIndex(unsigned int columnIndex) const;
+ 
+-  ::MYSQL_FIELD * getFieldMeta(unsigned int columnIndex) const;
++  ::st_mysql_field * getFieldMeta(unsigned int columnIndex) const;
+ 
+ private:
+ 
+diff -up mysql-connector-c++-1.1.11/driver/nativeapi/libmysql_static_proxy.cpp.omv~ mysql-connector-c++-1.1.11/driver/nativeapi/libmysql_static_proxy.cpp
+--- mysql-connector-c++-1.1.11/driver/nativeapi/libmysql_static_proxy.cpp.omv~	2018-06-18 19:39:56.817168062 +0200
++++ mysql-connector-c++-1.1.11/driver/nativeapi/libmysql_static_proxy.cpp	2018-06-18 19:40:11.252167267 +0200
+@@ -326,7 +326,7 @@ int
+ LibmysqlStaticProxy::get_option(MYSQL * mysql, enum mysql_option option, const void *arg)
+ {
+ #if MYSQL_VERSION_ID >= 50703
+-  if (::mysql_get_option(mysql, option, arg)) {
++  if (::mysql_get_option(mysql, option, const_cast<void*>(arg))) {
+     throw sql::InvalidArgumentException("Unsupported option provided to mysql_get_option()");
+   } else {
+     return 0;
+diff -up mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_connection_wrapper.cpp.omv~ mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_connection_wrapper.cpp
+--- mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_connection_wrapper.cpp.omv~	2018-06-18 19:43:49.865155220 +0200
++++ mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_connection_wrapper.cpp	2018-06-18 19:47:52.260141863 +0200
+@@ -59,6 +59,8 @@ namespace NativeAPI
+ mysql_option
+ get_mysql_option(sql::mysql::MySQL_Connection_Options opt)
+ {
++  return static_cast< mysql_option >(opt);
++  /*
+   switch(opt)
+   {
+   case sql::mysql::MYSQL_OPT_CONNECT_TIMEOUT: return ::MYSQL_OPT_CONNECT_TIMEOUT;
+@@ -118,6 +120,7 @@ get_mysql_option(sql::mysql::MySQL_Conne
+   //return something, just for remove compiler warning
+   //will never get here!
+   return ::MYSQL_OPT_CONNECT_TIMEOUT;
++  */
+ }
+ 
+ /* {{{ MySQL_NativeConnectionWrapper::MySQL_NativeConnectionWrapper() */
+diff -up mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_connection_wrapper.h.omv~ mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_connection_wrapper.h
+--- mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_connection_wrapper.h.omv~	2018-06-18 19:42:07.585160856 +0200
++++ mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_connection_wrapper.h	2018-06-18 19:42:19.444160203 +0200
+@@ -60,11 +60,7 @@ class MySQL_NativeConnectionWrapper : pu
+   boost::shared_ptr< IMySQLCAPI >	api;
+ 
+ 
+-#if (MYCPPCONN_STATIC_MYSQL_VERSION_ID > 80004)
+-struct MYSQL* mysql;
+-#else
+-struct st_mysql* mysql;
+-#endif
++  struct st_mysql* mysql;
+ 
+   ::sql::SQLString				serverInfo;
+ 
+diff -up mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_driver_wrapper.cpp.omv~ mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_driver_wrapper.cpp
+diff -up mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_driver_wrapper.h.omv~ mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_driver_wrapper.h
+diff -up mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_resultset_wrapper.h.omv~ mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_resultset_wrapper.h
+--- mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_resultset_wrapper.h.omv~	2018-06-18 19:42:46.977158686 +0200
++++ mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_resultset_wrapper.h	2018-06-18 19:48:20.460140309 +0200
+@@ -38,12 +38,7 @@
+ #include "native_resultset_wrapper.h"
+ #include "../cppconn/version_info.h"
+ 
+-#if (MYCPPCONN_STATIC_MYSQL_VERSION_ID > 80004)
+-struct MYSQL_RES;
+-#else
+ struct st_mysql_res;
+-#define MYSQL_RES st_mysql_res
+-#endif
+ 
+ namespace sql
+ {
+@@ -60,15 +55,15 @@ class IMySQLCAPI;
+ class MySQL_NativeResultsetWrapper : public NativeResultsetWrapper
+ {
+ public:
+-  MySQL_NativeResultsetWrapper(::MYSQL_RES *, boost::shared_ptr<NativeAPI::IMySQLCAPI> &/*, boost::shared_ptr< MySQL_DebugLogger > & l*/);
++  MySQL_NativeResultsetWrapper(::st_mysql_res *, boost::shared_ptr<NativeAPI::IMySQLCAPI> &/*, boost::shared_ptr< MySQL_DebugLogger > & l*/);
+ 
+   ~MySQL_NativeResultsetWrapper();
+ 
+   void data_seek(uint64_t);
+ 
+-  ::MYSQL_FIELD * fetch_field();
++  ::st_mysql_field * fetch_field();
+ 
+-  ::MYSQL_FIELD * fetch_field_direct(unsigned int);
++  ::st_mysql_field * fetch_field_direct(unsigned int);
+ 
+   unsigned long * fetch_lengths();
+ 
+@@ -89,14 +84,14 @@ private:
+ 
+   boost::shared_ptr< NativeAPI::IMySQLCAPI > capi;
+ 
+-  ::MYSQL_RES * rs;
++  ::st_mysql_res * rs;
+ };
+ 
+ } /* namespace NativeAPI */
+ } /* namespace mysql	 */
+ } /* namespace sql	   */
+ 
+-#endif // _MYSQL_RESULTSET_DATA_H_
++#endif // _st_mysql_resULTSET_DATA_H_
+ 
+ /*
+  * Local variables:
+diff -up mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_statement_wrapper.h.omv~ mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_statement_wrapper.h
+--- mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_statement_wrapper.h.omv~	2018-06-18 19:43:18.721156937 +0200
++++ mysql-connector-c++-1.1.11/driver/nativeapi/mysql_native_statement_wrapper.h	2018-06-18 19:43:33.252156136 +0200
+@@ -38,12 +38,7 @@
+ 
+ #include "native_statement_wrapper.h"
+ 
+-#if (MYCPPCONN_STATIC_MYSQL_VERSION_ID > 80004)
+-struct MYSQL_STMT;
+-#else
+ struct st_mysql_stmt;
+-#define MYSQL_STMT st_mysql_stmt
+-#endif
+ 
+ namespace sql
+ {
+@@ -63,13 +58,13 @@ class MySQL_NativeStatementWrapper : pub
+ {
+ 
+   boost::shared_ptr<IMySQLCAPI>	api;
+-  ::MYSQL_STMT *				stmt;
++  ::st_mysql_stmt *				stmt;
+   NativeConnectionWrapper *		conn;
+ 
+   MySQL_NativeStatementWrapper(){}
+ 
+ public:
+-  MySQL_NativeStatementWrapper(::MYSQL_STMT *, boost::shared_ptr<IMySQLCAPI>, NativeConnectionWrapper * connProxy);
++  MySQL_NativeStatementWrapper(::st_mysql_stmt *, boost::shared_ptr<IMySQLCAPI>, NativeConnectionWrapper * connProxy);
+   ~MySQL_NativeStatementWrapper();
+ 
+   uint64_t affected_rows();
+diff -up mysql-connector-c++-1.1.11/driver/nativeapi/native_resultset_wrapper.h.omv~ mysql-connector-c++-1.1.11/driver/nativeapi/native_resultset_wrapper.h
+--- mysql-connector-c++-1.1.11/driver/nativeapi/native_resultset_wrapper.h.omv~	2018-06-18 19:38:40.417172272 +0200
++++ mysql-connector-c++-1.1.11/driver/nativeapi/native_resultset_wrapper.h	2018-06-18 19:38:52.796171590 +0200
+@@ -41,12 +41,7 @@
+ 
+ #include "../cppconn/version_info.h"
+ 
+-#if (MYCPPCONN_STATIC_MYSQL_VERSION_ID > 80004)
+-struct MYSQL_FIELD;
+-#else
+ struct st_mysql_field;
+-#define MYSQL_FIELD st_mysql_field
+-#endif
+ 
+ namespace sql
+ {
+@@ -62,9 +57,9 @@ public:
+ 
+   virtual void data_seek(uint64_t) = 0;
+ 
+-  virtual ::MYSQL_FIELD * fetch_field() = 0;
++  virtual ::st_mysql_field * fetch_field() = 0;
+ 
+-  virtual ::MYSQL_FIELD * fetch_field_direct(unsigned int) = 0;
++  virtual ::st_mysql_field * fetch_field_direct(unsigned int) = 0;
+ 
+   virtual unsigned long * fetch_lengths() = 0;
+ 
+diff -up mysql-connector-c++-1.1.11/driver/nativeapi/native_statement_wrapper.h.omv~ mysql-connector-c++-1.1.11/driver/nativeapi/native_statement_wrapper.h
+--- mysql-connector-c++-1.1.11/driver/nativeapi/native_statement_wrapper.h.omv~	2018-06-18 19:37:56.377174699 +0200
++++ mysql-connector-c++-1.1.11/driver/nativeapi/native_statement_wrapper.h	2018-06-18 19:38:23.068173228 +0200
+@@ -42,15 +42,8 @@
+ #include "../mysql_statement_options.h"
+ #include "../cppconn/version_info.h"
+ 
+-#if (MYCPPCONN_STATIC_MYSQL_VERSION_ID > 80004)
+-struct MYSQL_BIND;
+-struct MYSQL_RES;
+-#else
+ struct st_mysql_bind;
+ struct st_mysql_res;
+-#define MYSQL_BIND st_mysql_bind
+-#define MYSQL_RES st_mysql_res
+-#endif
+ 
+ namespace sql
+ {
+@@ -76,9 +69,9 @@ public:
+ 
+   virtual bool attr_set(MySQL_Statement_Options attr, const void *arg) = 0;
+ 
+-  virtual bool bind_param(::MYSQL_BIND *) = 0;
++  virtual bool bind_param(::st_mysql_bind *) = 0;
+ 
+-  virtual bool bind_result(::MYSQL_BIND *) = 0;
++  virtual bool bind_result(::st_mysql_bind *) = 0;
+ 
+   virtual void data_seek(uint64_t) = 0;
+ 
+diff -up mysql-connector-c++-1.1.11/FindMySQL.cmake.omv~ mysql-connector-c++-1.1.11/FindMySQL.cmake
+--- mysql-connector-c++-1.1.11/FindMySQL.cmake.omv~	2018-06-18 19:48:52.258138557 +0200
++++ mysql-connector-c++-1.1.11/FindMySQL.cmake	2018-06-18 19:49:02.788137977 +0200
+@@ -700,8 +700,6 @@ endif()
+ 
+ # For dynamic linking use the built-in sys and strings
+ if(NOT MYSQLCLIENT_STATIC_LINKING)
+-   list(APPEND SYS_LIBRARIES "mysql_sys")
+-   list(APPEND SYS_LIBRARIES "mysql_strings")
+    list(APPEND SYS_LIBRARIES ${MYSQL_LIBRARIES})
+    SET(MYSQL_LIBRARIES ${SYS_LIBRARIES})
+ 

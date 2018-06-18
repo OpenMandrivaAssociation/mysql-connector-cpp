@@ -1,0 +1,21 @@
+diff -up mysql-connector-c++-1.1.11/FindMySQL.cmake.omv~ mysql-connector-c++-1.1.11/FindMySQL.cmake
+--- mysql-connector-c++-1.1.11/FindMySQL.cmake.omv~	2018-06-18 19:32:44.241191899 +0200
++++ mysql-connector-c++-1.1.11/FindMySQL.cmake	2018-06-18 19:33:28.692189450 +0200
+@@ -499,7 +499,7 @@ elseif(MYSQL_CONFIG_EXECUTABLE)
+ 
+   # This code assumes there is just one "-I...." and that
+   # no space between "-I" and the path
+-  _mysql_config(MYSQL_INCLUDE_DIR "(^| )-I" "--include")
++  set(MYSQL_INCLUDE_DIR "/usr/include/mysql")
+   if(NOT MYSQL_INCLUDE_DIR)
+     message(FATAL_ERROR "Could not find the include dir from running "
+                         "\"${MYSQL_CONFIG_EXECUTABLE}\"")
+@@ -587,7 +587,7 @@ elseif(MYSQL_CONFIG_EXECUTABLE)
+ 
+   # This code assumes there is just one "-L...." and that
+   # no space between "-L" and the path
+-  _mysql_config(MYSQL_LIB_DIR "(^| )-L" "--libs")
++  set(MYSQL_LIB_DIR "/usr/lib64")
+ 
+   IF(CMAKE_SYSTEM_NAME MATCHES "SunOS")
+     # This is needed to make Solaris binaries using the default runtime lib path

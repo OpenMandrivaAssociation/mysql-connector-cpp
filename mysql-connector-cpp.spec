@@ -4,13 +4,14 @@
 
 Summary:	A MySQL database connector for C++
 Name:		mysql-connector-c++
-Version:	1.1.6
+Version:	1.1.11
 Release:	1
 Group:		System/Libraries
 License:	GPLv2
 Url:		http://dev.mysql.com/downloads/connector/cpp/
 Source0:	http://cdn.mysql.com/Downloads/Connector-C++/%{name}-%{version}.tar.gz
-Patch1:		mariadb_api.patch
+Patch0:		mysql-connector-c++-1.1.11-detect-mariadb.patch
+Patch1:		mysql-connector-c++-1.1.11-mariadb.patch
 BuildRequires:	cmake
 BuildRequires:	mariadb-devel mariadb-common
 BuildRequires:	boost-devel
@@ -56,17 +57,14 @@ cp -pr examples _doc_examples
 %apply_patches
 
 %build
-%cmake -DMYSQLCPPCONN_BUILD_EXAMPLES:BOOL=OFF
+%cmake -DMYSQLCPPCONN_BUILD_EXAMPLES:BOOL=OFF \
+	-DRPM_LAYOUT:BOOL=ON \
+	-DCMAKE_ENABLE_C++11:BOOL=ON
 %make
 
 %install
 cp build/cppconn/config.h  cppconn/config.h
 %makeinstall_std -C build
-rm -fr %{buildroot}%{_prefix}/COPYING
-rm -fr %{buildroot}%{_prefix}/INSTALL
-rm -fr %{buildroot}%{_prefix}/README
-rm -fr %{buildroot}%{_prefix}/ANNOUNCEMENT
-rm -fr %{buildroot}%{_prefix}/Licenses_for_Third-Party_Components.txt
 
 rm -fr %{buildroot}%{_libdir}/*.a
 
@@ -74,7 +72,8 @@ rm -fr %{buildroot}%{_libdir}/*.a
 %{_libdir}/*.so.%{major}*
 
 %files -n %{devname}
-%doc README CHANGES COPYING ANNOUNCEMENT Licenses_for_Third-Party_Components.txt
+%license %{_docdir}/%{name}-%{version}/LICENSE
+%doc %{_docdir}/%{name}-%{version}
 %{_includedir}/*.h
 %{_includedir}/cppconn
 %{_libdir}/*.so
