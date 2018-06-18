@@ -5,7 +5,7 @@
 Summary:	A MySQL database connector for C++
 Name:		mysql-connector-c++
 Version:	1.1.6
-Release:	2
+Release:	1
 Group:		System/Libraries
 License:	GPLv2
 Url:		http://dev.mysql.com/downloads/connector/cpp/
@@ -14,6 +14,8 @@ Patch1:		mariadb_api.patch
 BuildRequires:	cmake
 BuildRequires:	mariadb-devel mariadb-common
 BuildRequires:	boost-devel
+BuildRequires:	pkgconfig(libssl)
+BuildRequires:	pkgconfig(libcrypto)
 
 %description
 Connector/C++ is a tool that enables easy deployment and management of MySQL
