@@ -10,7 +10,7 @@ Group:		System/Libraries
 License:	GPLv2
 Url:		http://dev.mysql.com/downloads/connector/cpp/
 Source0:	http://cdn.mysql.com/Downloads/Connector-C++/%{name}-%{version}.tar.gz
-Patch0:		mysql-connector-c++-1.1.11-detect-mariadb.patch
+#Patch0:		mysql-connector-c++-1.1.11-detect-mariadb.patch
 Patch1:		mysql-connector-c++-1.1.11-mariadb.patch
 BuildRequires:	cmake
 BuildRequires:	mariadb-devel mariadb-common
