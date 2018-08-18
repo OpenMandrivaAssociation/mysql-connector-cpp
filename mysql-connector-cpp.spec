@@ -5,7 +5,7 @@
 Summary:	A MySQL database connector for C++
 Name:		mysql-connector-c++
 Version:	1.1.11
-Release:	1
+Release:	2
 Group:		System/Libraries
 License:	GPLv2
 Url:		http://dev.mysql.com/downloads/connector/cpp/
@@ -36,6 +36,7 @@ This package provides the shared mysql-connector-cpp library.
 Summary:	Development library and header files for development with mysql-connector-cpp
 Group:		Development/C++
 Requires:	%{libname} = %{version}-%{release}
+Requires:	mariadb-devel
 Provides:	mysql-connector-c++-devel = %{version}-%{release}
 
 %description -n	%{devname}
