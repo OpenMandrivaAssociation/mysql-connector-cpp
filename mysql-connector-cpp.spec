@@ -63,6 +63,7 @@ cp -pr examples _doc_examples
 	-DCMAKE_ENABLE_C++11:BOOL=ON \
         -DCMAKE_INSTALL_LIBDIR=%{_libdir} \
         -DMYSQL_INCLUDE_DIR=%{_includedir}/mysql \
+        -DMYSQL_LIB_DIR=${_libdir} \
         -DMYSQL_LIB=%{_libdir}/libmysqlclient.so
         
 %make
