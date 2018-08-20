@@ -61,6 +61,7 @@ cp -pr examples _doc_examples
 %cmake -DMYSQLCPPCONN_BUILD_EXAMPLES:BOOL=OFF \
 	-DRPM_LAYOUT:BOOL=ON \
 	-DCMAKE_ENABLE_C++11:BOOL=ON \
+        -DCMAKE_INSTALL_LIBDIR=%{_libdir} \
         -DMYSQL_INCLUDE_DIR=%{_includedir}/mysql \
         -DMYSQL_LIB=%{_libdir}/libmysqlclient.so
         
