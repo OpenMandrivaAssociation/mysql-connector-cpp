@@ -54,7 +54,7 @@ chmod  -x examples/*.cpp examples/*.txt
 mkdir _doc_examples
 cp -pr examples _doc_examples
 
-%apply_patches
+%autopatch -p1
 
 %build
 %cmake -DMYSQLCPPCONN_BUILD_EXAMPLES:BOOL=OFF \
